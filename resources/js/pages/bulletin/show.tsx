@@ -20,7 +20,7 @@ export default function ArticleShow({ article, related }: Props) {
             <Head title={article.title} />
 
             {/* Header / Nav (Simplified) */}
-            <header className="sticky top-0 z-50 bg-[#1a1a1a] py-4 text-white shadow-md">
+            <header className="sticky top-0 z-50 bg-brand-black py-4 text-white shadow-md">
                 <div className="container mx-auto flex items-center justify-between px-4">
                     <Link
                         href="/boletin"
@@ -57,7 +57,7 @@ export default function ArticleShow({ article, related }: Props) {
                         </div>
 
                         {/* Title */}
-                        <h1 className="mb-8 text-3xl leading-tight font-black text-[#1a1a1a] md:text-5xl">
+                        <h1 className="mb-8 text-3xl leading-tight font-black text-brand-black md:text-5xl">
                             {article.title}
                         </h1>
 
@@ -97,7 +97,7 @@ export default function ArticleShow({ article, related }: Props) {
                     <aside className="space-y-8 lg:col-span-4">
                         {/* More News Widget */}
                         <div className="sticky top-24 rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-                            <h3 className="mb-6 border-b border-brand-gold pb-2 text-xl font-bold text-[#1a1a1a]">
+                            <h3 className="mb-6 border-b border-brand-gold pb-2 text-xl font-bold text-brand-black">
                                 Más Noticias
                             </h3>
                             <div className="flex flex-col gap-6">

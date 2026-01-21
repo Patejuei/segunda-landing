@@ -1,4 +1,5 @@
 import InputError from '@/components/input-error';
+import RichTextEditor from '@/components/rich-text-editor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -122,15 +123,13 @@ export default function ArticleEditor({ article, mode }: Props) {
 
                         {/* Content Editor area */}
                         <div className="min-h-[500px] rounded-lg border border-transparent bg-background/50 p-2 transition-colors focus-within:border-border focus-within:bg-background">
-                            <textarea
-                                id="content"
-                                className="min-h-[500px] w-full resize-none bg-transparent p-4 text-lg leading-relaxed outline-none placeholder:text-muted-foreground/40"
-                                placeholder="Escribe tu historia..."
-                                value={data.content}
-                                onChange={(e) =>
-                                    setData('content', e.target.value)
+                            <RichTextEditor
+                                content={data.content}
+                                onChange={(content) =>
+                                    setData('content', content)
                                 }
-                                required
+                                placeholder="Escribe tu historia..."
+                                className="min-h-[500px]"
                             />
                             <InputError
                                 message={errors.content}
