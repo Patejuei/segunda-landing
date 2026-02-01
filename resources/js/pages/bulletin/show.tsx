@@ -7,6 +7,7 @@ interface Props {
         title: string;
         content: string;
         image_path?: string;
+        image_data?: string;
         published_at: string;
         category: string;
         author?: string;
@@ -62,10 +63,12 @@ export default function ArticleShow({ article, related }: Props) {
                         </h1>
 
                         {/* Featured Image */}
-                        {article.image_path && (
+                        {(article.image_data || article.image_path) && (
                             <div className="relative mb-8 aspect-video overflow-hidden rounded-xl shadow-lg">
                                 <img
-                                    src={article.image_path}
+                                    src={
+                                        article.image_data || article.image_path
+                                    }
                                     alt={article.title}
                                     className="h-full w-full object-cover"
                                 />
@@ -74,7 +77,7 @@ export default function ArticleShow({ article, related }: Props) {
 
                         {/* Content */}
                         <div
-                            className="prose prose-lg prose-headings:font-bold prose-headings:text-[#1a1a1a] prose-a:text-brand-green prose-img:rounded-lg max-w-none text-gray-700"
+                            className="prose prose-lg max-w-none text-gray-700 prose-headings:font-bold prose-headings:text-[#1a1a1a] prose-a:text-brand-green prose-img:rounded-lg"
                             dangerouslySetInnerHTML={{
                                 __html: article.content,
                             }}

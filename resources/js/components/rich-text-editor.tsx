@@ -61,7 +61,7 @@ export default function RichTextEditor({
         content: content,
         editorProps: {
             attributes: {
-                class: 'prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl m-5 focus:outline-none min-h-[400px]',
+                class: 'prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl m-5 focus:outline-none min-h-[400px] prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-li:text-foreground prose-ul:text-foreground prose-ol:text-foreground text-foreground',
             },
         },
         onUpdate: ({ editor }) => {

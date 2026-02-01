@@ -1,3 +1,10 @@
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import WebsiteLayout from '@/layouts/website-layout';
 import { Link } from '@inertiajs/react';
 import {
@@ -9,6 +16,7 @@ import {
     FileText,
     Flame,
 } from 'lucide-react';
+import React from 'react';
 import { route } from 'ziggy-js';
 
 interface Props {
@@ -24,6 +32,7 @@ interface Props {
         category: string;
         content: string;
         image_path: string;
+        image_data?: string;
     } | null;
     secondaryNews: {
         id: number;
@@ -31,6 +40,7 @@ interface Props {
         category: string;
         content: string;
         image_path: string;
+        image_data?: string;
     }[];
     upcomingEvents: {
         day: string;
@@ -39,6 +49,11 @@ interface Props {
         time: string;
     }[];
     acts: any[];
+    availableEditions: {
+        year: number;
+        month: number;
+        label: string;
+    }[];
 }
 
 export default function Boletin({
@@ -47,6 +62,7 @@ export default function Boletin({
     secondaryNews,
     upcomingEvents,
     acts,
+    availableEditions,
 }: Props) {
     return (
         <WebsiteLayout title="Boletín Mensual" headerVariant="transparent">
@@ -54,7 +70,7 @@ export default function Boletin({
             <div className="relative -mt-[80px] flex h-[50vh] min-h-[400px] items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 z-0">
                     <img
-                        src="/images/hero.png"
+                        src="/images/fachada.jpg"
                         alt="Boletín Mensual"
                         className="h-full w-full object-cover brightness-50 contrast-125 filter"
                     />
@@ -149,6 +165,7 @@ export default function Boletin({
                                     <div className="group relative h-[400px] overflow-hidden rounded-2xl shadow-lg">
                                         <img
                                             src={
+                                                featuredArticle.image_data ||
                                                 featuredArticle.image_path ||
                                                 '/images/hero.png'
                                             }
@@ -190,6 +207,7 @@ export default function Boletin({
                                             <div className="group relative h-48 overflow-hidden bg-gray-200">
                                                 <img
                                                     src={
+                                                        news.image_data ||
                                                         news.image_path ||
                                                         '/images/hero.png'
                                                     }
@@ -354,67 +372,84 @@ export default function Boletin({
                                     method="GET"
                                     className="w-full space-y-3"
                                 >
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <div className="relative">
-                                            <select
-                                                name="month"
-                                                defaultValue={
-                                                    new Date().getMonth() + 1
-                                                }
-                                                className="focus:border-brand-red focus:ring-brand-red w-full cursor-pointer appearance-none rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-center text-sm font-bold text-white focus:ring-1"
-                                            >
-                                                {Array.from(
-                                                    { length: 12 },
-                                                    (_, i) => (
-                                                        <option
-                                                            key={i}
-                                                            value={i + 1}
+                                    {/* Helper function to get default value */}
+                                    {(() => {
+                                        const defaultVal =
+                                            availableEditions &&
+                                            availableEditions.length > 0
+                                                ? `${availableEditions[0].month}-${availableEditions[0].year}`
+                                                : '';
+
+                                        // We use React state to manage the hidden inputs
+                                        const [selection, setSelection] =
+                                            React.useState(defaultVal);
+                                        const [month, year] = selection
+                                            ? selection.split('-')
+                                            : ['', ''];
+
+                                        return (
+                                            <>
+                                                <input
+                                                    type="hidden"
+                                                    name="month"
+                                                    value={month}
+                                                />
+                                                <input
+                                                    type="hidden"
+                                                    name="year"
+                                                    value={year}
+                                                />
+
+                                                <div className="relative">
+                                                    {availableEditions &&
+                                                    availableEditions.length >
+                                                        0 ? (
+                                                        <Select
+                                                            value={selection}
+                                                            onValueChange={
+                                                                setSelection
+                                                            }
                                                         >
-                                                            {new Date(0, i)
-                                                                .toLocaleString(
-                                                                    'es-ES',
-                                                                    {
-                                                                        month: 'long',
-                                                                    },
-                                                                )
-                                                                .charAt(0)
-                                                                .toUpperCase() +
-                                                                new Date(0, i)
-                                                                    .toLocaleString(
-                                                                        'es-ES',
-                                                                        {
-                                                                            month: 'long',
-                                                                        },
-                                                                    )
-                                                                    .slice(1)}
-                                                        </option>
-                                                    ),
-                                                )}
-                                            </select>
-                                        </div>
-                                        <div className="relative">
-                                            <select
-                                                name="year"
-                                                defaultValue={new Date().getFullYear()}
-                                                className="focus:border-brand-red focus:ring-brand-red w-full cursor-pointer appearance-none rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-center text-sm font-bold text-white focus:ring-1"
-                                            >
-                                                {Array.from(
-                                                    { length: 5 },
-                                                    (_, i) =>
-                                                        new Date().getFullYear() -
-                                                        i,
-                                                ).map((y) => (
-                                                    <option key={y} value={y}>
-                                                        {y}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    </div>
+                                                            <SelectTrigger className="w-full border-gray-700 bg-gray-800 font-bold text-white">
+                                                                <SelectValue placeholder="Seleccionar Edición" />
+                                                            </SelectTrigger>
+                                                            <SelectContent className="border-gray-700 bg-gray-800 text-white">
+                                                                {availableEditions.map(
+                                                                    (
+                                                                        edition,
+                                                                        idx,
+                                                                    ) => (
+                                                                        <SelectItem
+                                                                            key={`${edition.month}-${edition.year}`}
+                                                                            value={`${edition.month}-${edition.year}`}
+                                                                            className="focus:bg-gray-700 focus:text-white"
+                                                                        >
+                                                                            {
+                                                                                edition.label
+                                                                            }
+                                                                        </SelectItem>
+                                                                    ),
+                                                                )}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    ) : (
+                                                        <div className="rounded-md border border-gray-700 bg-gray-800 p-2 text-sm text-gray-400">
+                                                            No hay ediciones
+                                                            disponibles.
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </>
+                                        );
+                                    })()}
 
                                     <button
                                         type="submit"
-                                        className="bg-brand-red inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-xl"
+                                        disabled={
+                                            !availableEditions ||
+                                            availableEditions.length === 0
+                                        }
+                                        className="bg-brand-red inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-red-700 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50"
                                     >
                                         <Download className="h-4 w-4" />
                                         Descargar Edición
@@ -485,9 +520,6 @@ export default function Boletin({
                                         {stats?.actos_count || 0}
                                     </span>
                                 </li>
-                                <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
-                                    <div className="h-full w-[45%] rounded-full bg-brand-green"></div>
-                                </div>
 
                                 <li className="flex items-center justify-between text-sm">
                                     <span className="text-gray-600">
@@ -497,9 +529,6 @@ export default function Boletin({
                                         {stats?.capacitaciones_count || 0}
                                     </span>
                                 </li>
-                                <div className="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
-                                    <div className="h-full w-[35%] rounded-full bg-brand-gold"></div>
-                                </div>
                             </ul>
                         </div>
                     </div>

@@ -66,12 +66,28 @@ class BulletinController extends Controller
                 ];
             });
 
+        // 6. Fetch Available Editions (for PDF Download)
+        // Group by Year and Month of published articles to determine which editions exist
+        $availableEditions = BulletinArticle::selectRaw('YEAR(published_at) as year, MONTH(published_at) as month')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->orderBy('month', 'desc')
+            ->get()
+            ->map(function ($date) {
+                return [
+                    'year' => $date->year,
+                    'month' => $date->month,
+                    'label' => ucfirst(\Carbon\Carbon::createFromDate($date->year, $date->month, 1)->locale('es')->isoFormat('MMMM YYYY'))
+                ];
+            });
+
         return Inertia::render('boletin', [
             'stats' => $stats,
             'featuredArticle' => $featuredArticle,
             'secondaryNews' => $secondaryNews,
             'upcomingEvents' => $upcomingEvents,
             'acts' => $acts,
+            'availableEditions' => $availableEditions,
         ]);
     }
 
@@ -140,8 +156,14 @@ class BulletinController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('bulletin/articles', 'public');
-            $article->image_path = '/public/storage/' . $path;
+            $file = $request->file('image');
+            $mime = $file->getMimeType();
+            $content = file_get_contents($file->getRealPath());
+            $base64 = base64_encode($content);
+            $imageData = 'data:' . $mime . ';base64,' . $base64;
+
+            $article->image_data = $imageData;
+            // $article->image_path = null; // Optional: clear legacy path if new image uploaded
         }
 
         $article->update([
@@ -150,6 +172,7 @@ class BulletinController extends Controller
             'content' => $validated['content'],
             'published_at' => $validated['published_at'],
             'is_featured' => $validated['is_featured'] ?? false,
+            // image_data is updated above if present
         ]);
 
         return redirect()->route('admin.bulletin.index');
@@ -167,17 +190,28 @@ class BulletinController extends Controller
             'is_featured' => 'boolean'
         ]);
 
-        $path = null;
+        $imageData = null;
+        $imagePath = null;
+
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('bulletin/articles', 'public');
-            $path = '/public/storage/' . $path;
+            $file = $request->file('image');
+            // Get file content and convert to base64
+            $mime = $file->getMimeType();
+            $content = file_get_contents($file->getRealPath());
+            $base64 = base64_encode($content);
+            $imageData = 'data:' . $mime . ';base64,' . $base64;
+
+            // We can keep image_path null or use it as a fallback identifier if needed, 
+            // but user asked for DB storage to save space (conceptually, though DB storage usually takes more space, 
+            // but satisfying the request "almacene en bits dentro de la base de datos").
         }
 
         BulletinArticle::create([
             'title' => $validated['title'],
             'category' => $validated['category'],
             'content' => $validated['content'],
-            'image_path' => $path,
+            'image_path' => null, // Explicitly null or legacy
+            'image_data' => $imageData,
             'published_at' => $validated['published_at'],
             'is_featured' => $validated['is_featured'] ?? false,
         ]);
@@ -300,14 +334,18 @@ class BulletinController extends Controller
             })->count(),
         ];
 
-        $articles = BulletinArticle::whereBetween('published_at', [$startOfMonth, $endOfMonth])->get();
+        $articles = BulletinArticle::whereBetween('published_at', [$startOfMonth, $endOfMonth])
+            ->orderBy('category')
+            ->orderBy('published_at', 'desc')
+            ->get()
+            ->groupBy('category');
 
         // You would need a blade view for this: 'pdf.bulletin'
         // For now let's assume we create it.
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.bulletin', [
             'stats' => $stats,
             'acts' => $acts,
-            'articles' => $articles
+            'groupedArticles' => $articles // Changed variable name to reflect structure
         ]);
 
         return $pdf->download('boletin-' . $startOfMonth->format('m-Y') . '.pdf');

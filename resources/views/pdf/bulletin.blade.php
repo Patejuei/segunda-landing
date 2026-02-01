@@ -1,3 +1,6 @@
+@php
+\Carbon\Carbon::setLocale('es');
+@endphp
 <!DOCTYPE html>
 <html>
 
@@ -5,133 +8,283 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>Boletín Mensual</title>
   <style>
-    body {
-      font-family: sans-serif;
-      color: #333;
+    @page {
+      margin: 1cm;
     }
 
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      color: #111;
+      line-height: 1.15;
+      /* Requested 1.15 */
+      font-size: 11pt;
+    }
+
+    /* Newspaper Header */
     .header {
       text-align: center;
-      margin-bottom: 30px;
-      border-bottom: 3px double #108012;
-      padding-bottom: 15px;
+      border-bottom: 4px double #111;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
     }
 
-    .title {
-      font-family: serif;
-      font-size: 32px;
+    .brand {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 36px;
       font-weight: 900;
-      color: #111;
       text-transform: uppercase;
       letter-spacing: 1px;
-      line-height: 1.2;
+      margin-bottom: 5px;
     }
 
-    .subtitle {
+    .sub-brand {
+      font-family: sans-serif;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: #108012;
+      /* Brand Green */
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+
+    .meta-bar {
+      border-top: 1px solid #111;
+      border-bottom: 1px solid #111;
+      padding: 5px 0;
+      font-family: sans-serif;
+      font-size: 9px;
+      text-transform: uppercase;
+      display: flex;
+      /* dompdf fallback */
+      text-align: center;
+      font-weight: bold;
+    }
+
+    /* Stats Stripe */
+    .stats-stripe {
+      background-color: #f3f4f6;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #ccc;
+      text-align: center;
+      font-family: sans-serif;
+      font-size: 10px;
+    }
+
+    .stat-item {
+      display: inline-block;
+      margin: 0 15px;
+    }
+
+    .stat-value {
+      font-weight: 900;
+      font-size: 14px;
+      color: #b91c1c;
+      /* Brand Red */
+    }
+
+    /* Layout */
+    .section-header {
       font-family: sans-serif;
       font-size: 14px;
-      color: #108012;
-      font-weight: bold;
+      font-weight: 900;
       text-transform: uppercase;
-      margin-top: 5px;
-      letter-spacing: 2px;
-    }
-
-    .section-title {
-      font-family: serif;
-      font-size: 20px;
-      font-weight: bold;
+      border-bottom: 3px solid #111;
+      margin-top: 25px;
       margin-bottom: 15px;
-      color: #111;
-      border-bottom: 2px solid #108012;
-      padding-bottom: 5px;
-      text-transform: uppercase;
+      padding-bottom: 3px;
+      page-break-after: avoid;
+      /* Prevent header at bottom of page */
     }
 
-    .stats-box {
-      background-color: #fff;
-      border: 1px solid #e5e7eb;
-      padding: 15px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    .category-label {
+      background-color: #111;
+      color: #fff;
+      padding: 3px 8px;
+      display: inline-block;
     }
 
-    .acts-table th {
-      background-color: #108012;
-      color: white;
-      text-transform: uppercase;
-      font-size: 9px;
+    .article {
+      margin-bottom: 30px;
+      /* page-break-inside: avoid; */
+      /* Removing this as it can cause large gaps if article is long */
+      clear: both;
+      /* Ensure clearing floats */
+      overflow: hidden;
+      /* Clearfix */
     }
 
     .article-title {
-      font-family: serif;
-      font-size: 18px;
-      color: #111;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 5px;
+      line-height: 1.1;
+      page-break-after: avoid;
+      /* Keep title with content */
+    }
+
+    .article-date {
+      font-family: sans-serif;
+      font-size: 9px;
+      color: #666;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .article-img {
+      width: 50%;
+      /* Adjusted for wrapping */
+      height: auto;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      display: block;
+    }
+
+    .img-left {
+      float: left;
+      margin-right: 15px;
+    }
+
+    .img-right {
+      float: right;
+      margin-left: 15px;
+    }
+
+    .article-content {
+      text-align: justify;
+      font-size: 10pt;
+      line-height: 1.15;
+      /* Requested interlineado */
+      white-space: pre-wrap;
+      /* Preserve intended newlines after cleanup */
+    }
+
+    /* Acts Table */
+    .acts-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9pt;
+      font-family: sans-serif;
+      margin-top: 10px;
+    }
+
+    .acts-table th {
+      background-color: #111;
+      color: #fff;
+      text-align: left;
+      padding: 5px;
+      font-size: 8pt;
+      text-transform: uppercase;
+    }
+
+    .acts-table td {
+      border-bottom: 1px solid #ddd;
+      padding: 5px;
+      vertical-align: top;
     }
 
     .footer {
-      border-top: 3px solid #108012;
-      color: #666;
+      margin-top: 50px;
+      text-align: center;
+      font-size: 8pt;
+      color: #888;
+      border-top: 1px solid #ddd;
+      padding-top: 10px;
     }
   </style>
 </head>
 
 <body>
+
+  <!-- Header -->
   <div class="header">
-    <div class="title">Segunda Compañía de Bomberos</div>
-    <div class="subtitle">Puente Alto "Bomba Marcos Pérez"</div>
-    <div style="margin-top: 10px; font-weight: bold;">Boletín Informativo - {{ $stats['month_year'] }}</div>
+    <div class="brand">Segunda Compañía</div>
+    <div class="sub-brand">Cuerpo de Bomberos de Puente Alto "Bomba Marcos Pérez Inzunza"</div>
+    <div class="meta-bar">
+      Boletín Informativo &nbsp;&bull;&nbsp; {{ $stats['month_year'] }} &nbsp;&bull;&nbsp; www.segundacbpa.cl
+    </div>
   </div>
 
-  <div class="stats-box">
+  <!-- Stats Stripe -->
+  <div class="stats-stripe">
     <div class="stat-item">
-      <span class="stat-label">Total Actos del Servicio:</span>
-      <span class="stat-value">{{ $stats['actos_count'] }}</span>
+      TOTAL EMERGENCIAS: <span class="stat-value">{{ $stats['actos_count'] }}</span>
     </div>
-    <div style="clear: both;"></div>
     <div class="stat-item">
-      <span class="stat-label">Academias y Capacitaciones:</span>
-      <span class="stat-value">{{ $stats['capacitaciones_count'] }}</span>
+      ACADEMIAS Y CAPAC.: <span class="stat-value">{{ $stats['capacitaciones_count'] }}</span>
     </div>
-    <div style="clear: both;"></div>
   </div>
 
-  @if(count($articles) > 0)
-  <div class="section-title">Noticias Destacadas</div>
+  <!-- Articles -->
+  @foreach($groupedArticles as $category => $articles)
+  <div class="section-header">
+    <span class="category-label">{{ $category }}</span>
+  </div>
+
   @foreach($articles as $article)
   <div class="article">
     <div class="article-title">{{ $article->title }}</div>
-    <div class="article-meta">{{ $article->category }} &bull; {{ \Carbon\Carbon::parse($article->published_at)->format('d/m/Y') }}</div>
+    <div class="article-date">
+      {{ \Carbon\Carbon::parse($article->published_at)->locale('es')->isoFormat('dddd D [de] MMMM [de] YYYY') }}
+    </div>
+
+    @if($article->image_data || $article->image_path)
+    <?php
+    $imgSrc = null;
+    if (!empty($article->image_data)) {
+      $imgSrc = $article->image_data;
+    } elseif (!empty($article->image_path)) {
+      if (str_starts_with($article->image_path, '/')) {
+        $imgSrc = public_path($article->image_path);
+      } else {
+        $imgSrc = public_path('/' . $article->image_path);
+      }
+    }
+    // Determinar clase de alineación (intercalada)
+    $imgClass = ($loop->iteration % 2 == 0) ? 'img-right' : 'img-left';
+    ?>
+    @if($imgSrc)
+    <img src="{{ $imgSrc }}" class="article-img {{ $imgClass }}">
+    @endif
+    @endif
+
     <div class="article-content">
-      {{ \Illuminate\Support\Str::limit(strip_tags($article->content), 500) }}
+      {!! $article->content !!}
     </div>
   </div>
+  <hr style="border: 0; border-bottom: 1px solid #eee; margin: 20px 0;">
   @endforeach
-  @endif
+  @endforeach
 
+  <!-- Acts Section -->
   @if(count($acts) > 0)
-  <div class="section-title" style="margin-top: 20px;">Registro de Actos</div>
+  <div class="section-header">
+    <span class="category-label">Registro de Actos</span>
+  </div>
+
   <table class="acts-table">
     <thead>
       <tr>
-        <th width="15%">Fecha</th>
-        <th width="10%">Hora</th>
+        <th width="12%">Fecha</th>
+        <th width="8%">Hora</th>
         <th width="15%">Clave</th>
-        <th width="35%">Dirección</th>
+        <th width="40%">Dirección</th>
         <th width="25%">Comuna</th>
       </tr>
     </thead>
     <tbody>
       @foreach($acts as $act)
       <tr>
-        <td>{{ \Carbon\Carbon::parse($act->date)->format('d/m/Y') }}</td>
+        <td>{{ \Carbon\Carbon::parse($act->date)->format('d/m') }}</td>
         <td>{{ $act->time }}</td>
-        <td style="font-weight: bold; color: #108012;">{{ $act->service_type }}</td>
+        <td style="font-weight: bold; color: #b91c1c;">{{ $act->key }}</td>
         <td>
           {{ $act->address }}
-          @if($act->corner) <br><span style="color: #6b7280;">Esq. {{ $act->corner }}</span> @endif
+          @if($act->corner) <br><span style="color: #6b7280; font-size: 8pt;">Esq. {{ $act->corner }}</span> @endif
         </td>
-        <td>{{ $act->commune ?? 'Puente Alto' }}</td>
+        <td>{{ $act->commune ?? '-' }}</td>
       </tr>
       @endforeach
     </tbody>
@@ -139,8 +292,9 @@
   @endif
 
   <div class="footer">
-    Generado el {{ date('d/m/Y H:i') }} | www.segundapuentealto.cl
+    Generado automáticamente por el Sistema de Gestión Interna de la Segunda Compañía.
   </div>
+
 </body>
 
 </html>

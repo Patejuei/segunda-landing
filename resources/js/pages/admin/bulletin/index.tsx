@@ -93,7 +93,7 @@ export default function BulletinAdminIndex({
                     <div className="flex flex-col gap-3">
                         <Link
                             href={route('admin.bulletin.acts.create')}
-                            className="bg-brand-red inline-flex h-10 w-full items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
+                            className="inline-flex h-10 w-full items-center justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-none"
                         >
                             <Plus className="mr-2 size-4" />
                             Nuevo Acto Manual

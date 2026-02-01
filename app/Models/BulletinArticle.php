@@ -14,6 +14,7 @@ class BulletinArticle extends Model
         'category',
         'content',
         'image_path',
+        'image_data',
         'published_at',
         'is_featured',
     ];

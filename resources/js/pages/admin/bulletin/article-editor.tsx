@@ -9,7 +9,16 @@ import { ArrowLeft, Save, Upload } from 'lucide-react';
 import { FormEventHandler, useState } from 'react';
 
 interface Props {
-    article?: any;
+    article?: {
+        id: number;
+        title: string;
+        category: string;
+        content: string;
+        published_at: string;
+        image_path: string | null;
+        image_data?: string | null;
+        is_featured: boolean;
+    };
     mode: 'create' | 'edit';
 }
 
@@ -27,7 +36,7 @@ export default function ArticleEditor({ article, mode }: Props) {
     });
 
     const [previewImage, setPreviewImage] = useState<string | null>(
-        article?.image_path || null,
+        article?.image_data || article?.image_path || null,
     );
 
     const submit: FormEventHandler = (e) => {
