@@ -141,7 +141,7 @@ class BulletinController extends Controller
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('bulletin/articles', 'public');
-            $article->image_path = '/storage/' . $path;
+            $article->image_path = '/public/storage/' . $path;
         }
 
         $article->update([
@@ -170,7 +170,7 @@ class BulletinController extends Controller
         $path = null;
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('bulletin/articles', 'public');
-            $path = '/storage/' . $path;
+            $path = '/public/storage/' . $path;
         }
 
         BulletinArticle::create([
